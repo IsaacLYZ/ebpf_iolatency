@@ -79,7 +79,12 @@ int main() {
     for (int i = 0; i < 17; i++) {
         __u32 value = 0;
 		bpf_map_update_elem(hist_fd,&i,&value,BPF_ANY);
+		count[i]=0;
     }
+	// Print counts
+	system("clear");
+	print_table(count);
+	printf("Refresh in 5s.\n");
 
 	while(1){
 		sleep(5);
@@ -93,6 +98,7 @@ int main() {
 		// Print counts
 		system("clear");
 		print_table(count);
+		printf("Refresh in 5s.\n");
 	}
 
 
