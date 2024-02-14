@@ -55,7 +55,7 @@ int handle_block_rq_issue(struct request *rq)
 		q->val[in]=issue_time;
 		__sync_fetch_and_add(&q->count,1);
 		__sync_fetch_and_add(&q->in,1);
-		bpf_printk("Issue in %d count %d",q->in,q->count);
+		//bpf_printk("Issue in %d count %d",q->in,q->count);
 		bpf_map_update_elem(&issue_time_map, &tag, q, BPF_ANY);
 	}
 	else{
@@ -75,11 +75,11 @@ int handle_block_rq_issue(struct request *rq)
 		q->val[in]=issue_time;
 		__sync_fetch_and_add(&q->count,1);
 		__sync_fetch_and_add(&q->in,1);
-		bpf_printk("Issue in %d count %d",q->in,q->count);
+		//bpf_printk("Issue in %d count %d",q->in,q->count);
 		bpf_map_update_elem(&issue_time_map, &tag, q, BPF_ANY);
 	}
 
-	bpf_printk("Issue rq->tag %lu\n",rq->tag);
+	//bpf_printk("Issue rq->tag %lu\n",rq->tag);
 
 	return 0;
 }
@@ -94,7 +94,7 @@ int handle_block_rq_complete(struct request *rq, blk_status_t error, unsigned in
 	int index=0;
 	int *count;
 
-	bpf_printk("Complete rq->tag %d", rq->tag);
+	//bpf_printk("Complete rq->tag %d", rq->tag);
 
 	q = bpf_map_lookup_elem(&issue_time_map,&tag);
 	if(!q)
@@ -109,7 +109,7 @@ int handle_block_rq_complete(struct request *rq, blk_status_t error, unsigned in
 	latency = q->val[out];
 	__sync_fetch_and_add(&q->out,1);
 	__sync_fetch_and_sub(&q->count,1);
-	bpf_printk("Complete out %d count %d",q->out,q->count);
+	//bpf_printk("Complete out %d count %d",q->out,q->count);
 	bpf_map_update_elem(&issue_time_map, &tag, q, BPF_ANY);
 
 	latency=(complete_time-latency)/1000;
@@ -124,7 +124,7 @@ int handle_block_rq_complete(struct request *rq, blk_status_t error, unsigned in
 	latency |= latency >> 16;
 	index = tab32[(uint32_t)(latency*0x07C4ACDD) >> 27];
 
-	bpf_printk("latency %llu index %d\n", latency, index);
+	//bpf_printk("latency %llu index %d\n", latency, index);
 
 	count = bpf_map_lookup_elem(&latency_hist, &index);
 	if(count)
