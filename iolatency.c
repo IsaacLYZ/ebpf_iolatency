@@ -21,7 +21,7 @@ void print_table(__u32 * hist)
 	}
 }
 
-int main() {
+int main(int argc, char **argv) {
     struct bpf_object *obj;
     struct bpf_program *prog[3];
     struct bpf_link *link[3];
@@ -30,6 +30,17 @@ int main() {
 	__u32 count[17];
 	char *func[]={"handle_block_rq_issue","handle_block_rq_complete"};
 	char *tp[]={"block_rq_issue","block_rq_complete"};
+	int interval=5;
+
+	if(argc<2){
+		printf("Usage: iolatency [interval second].\n");
+		return 0;
+	}
+	interval=atoi(argv[1]);
+	if(interval<1){
+		printf("Usage: iolatency [interval second].\n");
+		return 0;
+	}
 
     // Load and verify BPF application
     fprintf(stderr, "Loading BPF code in memory\n");
@@ -84,10 +95,10 @@ int main() {
 	// Print counts
 	system("clear");
 	print_table(count);
-	printf("Refresh in 5s.\n");
+	printf("Refresh in %ds.\n",interval);
 
 	while(1){
-		sleep(5);
+		sleep(interval);
 		// Read and reset counts
 		for (int i = 0; i < 17; i++) {
 			__u32 value = 0;
@@ -98,7 +109,7 @@ int main() {
 		// Print counts
 		system("clear");
 		print_table(count);
-		printf("Refresh in 5s.\n");
+		printf("Refresh in %ds.\n",interval);
 	}
 
 
